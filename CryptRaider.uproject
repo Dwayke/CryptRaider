@@ -1,0 +1,22 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{E4F083C5-4515-CD97-8513-5894B4BFD89A}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "CryptRaider",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "ModelingToolsEditorMode",
+			"Enabled": true,
+			"TargetAllowList": [
+				"Editor"
+			]
+		}
+	]
+}

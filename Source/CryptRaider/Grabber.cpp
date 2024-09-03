@@ -2,6 +2,9 @@
 
 
 #include "Grabber.h"
+#include "Engine/World.h"
+//#include "DrawDebugHelpers.h"
+
 
 // Sets default values for this component's properties
 UGrabber::UGrabber()
@@ -28,7 +31,10 @@ void UGrabber::BeginPlay()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+		// ...
+	FVector StartLine = GetComponentLocation();
+	FVector EndLine = StartLine + (GetForwardVector() * MaxGrabDistance);
+	DrawDebugLine(GetWorld(), StartLine,EndLine, FColor::Cyan);
+	DrawDebugSphere(GetWorld(), EndLine, 5, 8, FColor::Cyan);
 }
 

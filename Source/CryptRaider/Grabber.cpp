@@ -34,11 +34,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 		// ...	
 	UPhysicsHandleComponent* PhysicsHandle = GetPhysicsHandle();
-	if (PhysicsHandle == nullptr)
-	{
-		return;
-	}
-	if (PhysicsHandle->GetGrabbedComponent() != nullptr)
+	if (PhysicsHandle && PhysicsHandle->GetGrabbedComponent() != nullptr)
 	{
 		FVector TargetLocation = GetComponentLocation() + (GetForwardVector() * HoldDistance);
 		PhysicsHandle->SetTargetLocationAndRotation(TargetLocation, GetComponentRotation());
@@ -50,31 +46,32 @@ void UGrabber::Release()
 {
 	
 	UPhysicsHandleComponent* PhysicsHandle = GetPhysicsHandle();
-	if (PhysicsHandle == nullptr)
+	if (PhysicsHandle && PhysicsHandle->GetGrabbedComponent())
 	{
-		return;
-	}
-	if (PhysicsHandle->GetGrabbedComponent()!=nullptr)
-	{
+		AActor* GrabbedComponent = PhysicsHandle->GetGrabbedComponent()->GetOwner();
+		if (GrabbedComponent)
+		{
+			GrabbedComponent->Tags.Remove("Grabbed");
+		}
 		PhysicsHandle->ReleaseComponent();
 		UE_LOG(LogTemp, Display, TEXT("Released"));
 	}
-
 }
 
 void UGrabber::Grab()
 {
 	UPhysicsHandleComponent* PhysicsHandle = GetPhysicsHandle();
-	if (PhysicsHandle == nullptr)
-	{
-		return;
-	}
 	FHitResult HitResult;
 
-	if (GetGrabbableInReach(HitResult))
+	if (PhysicsHandle && GetGrabbableInReach(HitResult))
 	{
+		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+		HitComponent->WakeAllRigidBodies();
+		HitComponent->SetSimulatePhysics(true);
+		HitResult.GetActor()->Tags.Add("Grabbed");
+		HitResult.GetActor()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 5, 8, FColor::Magenta, false, 5);
-		PhysicsHandle->GrabComponentAtLocationWithRotation(HitResult.GetComponent(), NAME_None, HitResult.ImpactPoint, GetComponentRotation());
+		PhysicsHandle->GrabComponentAtLocationWithRotation(HitComponent, NAME_None, HitResult.ImpactPoint, GetComponentRotation());
 		UE_LOG(LogTemp, Display, TEXT("Grabbed"));
 	}
 }
